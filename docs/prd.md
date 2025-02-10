@@ -225,31 +225,24 @@ For users (initially yourself) who want to keep up with podcasts without listeni
 ### B. Backend (Local)
 
 - Language & Framework:
-  - Likely Python (with FastAPI or Flask) or Node.js (if preferred) running locally
-- RSS Parsing:
-  - Use a library such as Python's feedparser or a Node.js equivalent
-- Audio Processing:
-  - Use yt-dlp for YouTube audio extraction
-  - Direct download for podcast RSS enclosures
-  - FFmpeg for audio preprocessing
-  - Implementation of audio chunking based on provided sample code
-- Transcription:
-  - Use distil-whisper-large-v3-en model
-  - Sequential chunk processing
-  - Chunk size optimization for 50-100 MB files
-- Error Handling:
-  - Detailed logging of failed downloads
-  - Retry mechanism with error tracking
-  - Error notification system
-- Integration with Groq API:
-  - Speech-to-Text:
-    - Use Groq API endpoints for transcription (handling file chunking for files larger than 25 MB)
-  - Summarization:
-    - Use Groq's Llama 3.3 70B Versatile 128k API for generating summaries
-- Data Storage:
-  - Supabase (PostgreSQL) for subscriptions, episode metadata, transcripts, and summaries
-- Local Environment:
-  - The entire system will run on a local machine, eliminating the need for cloud hosting for now
+  - Python with FastAPI
+  - Async processing for long-running tasks
+  - Type hints and Pydantic models for validation
+- Project Structure:
+  ```
+  backend/
+  ├── app/
+  │   ├── api/            # API routes
+  │   ├── core/           # Core configuration
+  │   ├── models/         # Pydantic models
+  │   ├── services/       # Business logic
+  │   │   ├── audio.py    # Audio processing
+  │   │   ├── youtube.py  # YouTube handling
+  │   │   └── rss.py      # RSS processing
+  │   └── utils/          # Helper functions
+  ├── tests/              # Test files
+  └── main.py            # Application entry
+  ```
 
 ### C. Handling Larger Files (Groq API)
 
@@ -373,11 +366,14 @@ You can share the following prompt with a UI prototyping platform (e.g., Figma, 
 
 2. **YouTube RSS Feed Extraction:**
 
-   - Implementation approach:
+   - Primary implementation approach:
      - Extract channel ID from video URL using regex
      - Generate RSS feed URL using format:
        `https://www.youtube.com/feeds/videos.xml?channel_id=<CHANNEL_ID>`
-     - Fallback to page source parsing if direct RSS URL fails
+   - Fallback methods if regex fails:
+     - Parse video page HTML to find channel ID in meta tags
+     - Use YouTube Data API to fetch channel details
+     - If all methods fail, store as standalone video without channel subscription
 
 3. **Audio Processing Details:**
 
